@@ -13,3 +13,54 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Customer {
+  id            Int      @id @default(autoincrement())
+  last_name     String
+  first_name    String
+  contact_phone String
+  email         String   @unique
+  password      String
+  created_time  DateTime @default(now())
+  modified_time DateTime @updatedAt
+  status        String   @default("0") // 0-normal, 1-10% discount, 2-ban
+  role          String   @default("0") // 0-user, 1-admin
+  rentals       Rental[]
+}
+
+model Category {
+  id            Int        @id @default(autoincrement())
+  name          String
+  created_time  DateTime   @default(now())
+  modified_time DateTime   @updatedAt
+  equipments    Equipment[]
+}
+
+model Equipment {
+  id            Int        @id @default(autoincrement())
+  name          String
+  description   String
+  daily_rate    Float
+  quantity      Int        @default(1)
+  is_damaged    String     @default("0") // 0 = no, 1 = yes
+  created_time  DateTime   @default(now())
+  modified_time DateTime   @updatedAt
+  category_id   Int
+  category      Category   @relation(fields: [category_id], references: [id])
+  rentals       Rental[]
+}
+
+model Rental {
+  id            Int      @id @default(autoincrement())
+  rental_date   DateTime
+  return_date   DateTime
+  cost          Float
+  quantity      Int      @default(1)
+  customer_id   Int
+  equipment_id  Int
+  customer      Customer @relation(fields: [customer_id], references: [id])
+  equipment     Equipment @relation(fields: [equipment_id], references: [id])
+  created_time  DateTime @default(now())
+  modified_time DateTime @updatedAt
+}
+
